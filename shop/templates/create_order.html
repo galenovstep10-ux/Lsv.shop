@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Оформление заказа{% endblock %}
+
+{% block styles %}
+<style>
+    .order-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .order-container h1 {
+        font-size: 32px;
+        margin-bottom: 30px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .order-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .order-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Секция с заказом */
+    .order-summary {
+        background: white;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        height: fit-content;
+    }
+    
+    .order-summary h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+        font-weight: 600;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--highlight);
+        display: inline-block;
+    }
+    
+    .order-items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    .order-items-table th {
+        text-align: left;
+        padding: 12px 8px;
+        background: #f8f8f8;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+    
+    .order-items-table td {
+        padding: 12px 8px;
+        border-bottom: 1px solid #eee;
+        color: var(--text-secondary);
+    }
+    
+    .order-items-table tfoot td {
+        border-bottom: none;
+        padding-top: 15px;
+        font-weight: 600;
+    }
+    
+    .order-items-table tfoot td:last-child {
+        font-size: 18px;
+        color: var(--highlight);
+    }
+    
+    /* Форма заказа */
+    .order-form-section {
+        background: white;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .order-form-section h2 {
+        font-size: 20px;
+        margin-bottom: 25px;
+        color: var(--text-primary);
+        font-weight: 600;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--highlight);
+        display: inline-block;
+    }
+    
+    .order-form {
+        margin-top: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .order-form label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+    
+    .order-form input,
+    .order-form textarea,
+    .order-form select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+    
+    .order-form input:focus,
+    .order-form textarea:focus,
+    .order-form select:focus {
+        outline: none;
+        border-color: var(--highlight);
+        box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+    }
+    
+    .order-form input.error,
+    .order-form textarea.error,
+    .order-form select.error {
+        border-color: #ff4444;
+    }
+    
+    .errorlist {
+        color: #ff4444;
+        font-size: 12px;
+        margin-top: 5px;
+        list-style: none;
+        padding: 0;
+    }
+    
+    .submit-order-btn {
+        width: 100%;
+        background: #000;
+        color: white;
+        padding: 14px 32px;
+        border-radius: 30px;
+        border: none;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+    
+    .submit-order-btn:hover {
+        background: #333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .back-to-cart {
+        display: inline-block;
+        margin-top: 20px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .back-to-cart:hover {
+        color: var(--highlight);
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .order-summary,
+        .order-form-section {
+            padding: 20px;
+        }
+        
+        .order-items-table th,
+        .order-items-table td {
+            padding: 8px 5px;
+            font-size: 13px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block container %}
+<div class="order-container">
+    <h1>Оформление заказа</h1>
+    
+    <div class="order-grid">
+        <!-- Левая колонка: Состав заказа -->
+        <div class="order-summary">
+            <h2>Ваш заказ</h2>
+            <table class="order-items-table">
+                <thead>
+                    <tr>
+                        <th>Товар</th>
+                        <th>Размер</th>
+                        <th>Кол-во</th>
+                        <th>Цена</th>
+                        <th>Сумма</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart.items.all %}
+                    <tr>
+                        <td>{{ item.product.title }}</td>
+                        <td>{{ item.size|default:"-" }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.product.price }} BYN</td>
+                        <td><strong>{{ item.get_total }} BYN</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align: right;"><strong>Итого:</strong></td>
+                        <td><strong style="font-size: 18px; color: var(--highlight);">{{ total }} BYN</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <!-- Правая колонка: Форма заказа -->
+        <div class="order-form-section">
+            <h2>Контактная информация</h2>
+            <form method="post" class="order-form">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <ul class="errorlist">
+                        {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if field.help_text %}
+                    <small style="color: var(--text-muted); font-size: 12px; display: block; margin-top: 5px;">{{ field.help_text }}</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                
+                <button type="submit" class="submit-order-btn">Подтвердить заказ</button>
+            </form>
+            <a href="{% url 'cart_detail' %}" class="back-to-cart">← Вернуться в корзину</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

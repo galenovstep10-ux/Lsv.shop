@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Товары{% endblock title %}
+{% block container %}
+<main class="product-grid">
+    {% for prod in products %}  <!-- Изменено: products - коллекция, prod - элемент -->
+        <a href="{{ prod.get_absolute_url }}" class="product-card-link">  <!-- Добавлены кавычки -->
+            <div class="product-card">
+                <div class="product-image">
+                    <img src={{ prod.image.url}}></img>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">{{ prod.title }}</h3>
+                    <p class="product-price">
+                        <span class="new-price">{{ prod.price }} ₽</span>
+                    </p>
+                    <span class="product-btn">Смотреть товар</span>
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+</main>
+{% endblock %}
+

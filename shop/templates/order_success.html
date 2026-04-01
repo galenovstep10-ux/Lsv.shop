@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Заказ оформлен{% endblock %}
+
+{% block styles %}
+<style>
+    .success-container {
+        max-width: 800px;
+        margin: 60px auto;
+        padding: 0 20px;
+    }
+    
+    .success-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        animation: fadeInUp 0.5s ease;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .success-header {
+        background: linear-gradient(135deg, #000 0%, #333 100%);
+        color: white;
+        text-align: center;
+        padding: 50px 30px;
+    }
+    
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: #4CAF50;
+        color: white;
+        font-size: 48px;
+        line-height: 80px;
+        text-align: center;
+        border-radius: 50%;
+        margin: 0 auto 25px;
+        animation: scaleIn 0.5s ease;
+    }
+    
+    @keyframes scaleIn {
+        0% {
+            transform: scale(0);
+        }
+        70% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    .success-header h1 {
+        font-size: 32px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    
+    .order-number {
+        font-size: 18px;
+        background: rgba(255,255,255,0.2);
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 30px;
+        margin-top: 15px;
+    }
+    
+    .success-body {
+        padding: 30px;
+    }
+    
+    .order-info {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .order-info p {
+        margin: 8px 0;
+        color: var(--text-secondary);
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    .order-details,
+    .order-items {
+        margin-bottom: 30px;
+    }
+    
+    .order-details h2,
+    .order-items h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--highlight);
+        display: inline-block;
+    }
+    
+    .details-grid {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 20px;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .detail-value {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .items-list {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 20px;
+    }
+    
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .order-item:last-child {
+        border-bottom: none;
+    }
+    
+    .item-info {
+        flex: 1;
+    }
+    
+    .item-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 5px;
+    }
+    
+    .item-meta {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    
+    .item-price {
+        font-weight: 600;
+        color: var(--highlight);
+        min-width: 100px;
+        text-align: right;
+    }
+    
+    .order-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px solid var(--highlight);
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .total-label {
+        color: var(--text-primary);
+    }
+    
+    .total-price {
+        color: var(--highlight);
+        font-size: 24px;
+    }
+    
+    .success-actions {
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    .btn-primary {
+        display: inline-block;
+        background: #000;
+        color: white;
+        padding: 14px 40px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: #333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .success-container {
+            margin: 30px auto;
+        }
+        
+        .success-header {
+            padding: 40px 20px;
+        }
+        
+        .success-header h1 {
+            font-size: 24px;
+        }
+        
+        .success-body {
+            padding: 20px;
+        }
+        
+        .order-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .item-price {
+            text-align: left;
+            width: auto;
+        }
+        
+        .order-total {
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block container %}
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-header">
+            <div class="success-icon">✓</div>
+            <h1>Спасибо за заказ!</h1>
+            <div class="order-number">Заказ #{{ order.id }}</div>
+        </div>
+        
+        <div class="success-body">
+            <div class="order-info">
+                <p>Мы свяжемся с вами для подтверждения заказа.</p>
+                <p>Детали заказа отправлены на вашу почту.</p>
+            </div>
+            
+            <div class="order-details">
+                <h2>Детали заказа</h2>
+                <div class="details-grid">
+                    <div class="detail-row">
+                        <span class="detail-label">Получатель:</span>
+                        <span class="detail-value">{{ order.full_name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Город доставки:</span>
+                        <span class="detail-value">{{ order.city }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Контактная информация:</span>
+                        <span class="detail-value">{{ order.contact_info }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Дата заказа:</span>
+                        <span class="detail-value">{{ order.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Статус:</span>
+                        <span class="detail-value" style="color: #4CAF50;">{{ order.get_status_display }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="order-items">
+                <h2>Состав заказа</h2>
+                <div class="items-list">
+                    {% for item in order.items.all %}
+                    <div class="order-item">
+                        <div class="item-info">
+                            <div class="item-name">{{ item.product.title }}</div>
+                            <div class="item-meta">
+                                Размер: {{ item.size|default:"-" }} | Количество: {{ item.quantity }} шт.
+                            </div>
+                        </div>
+                        <div class="item-price">{{ item.price|floatformat:2 }} BYN</div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="order-total">
+                        <span class="total-label">Итого к оплате:</span>
+                        <span class="total-price">
+                            {% widthratio order.items.all|length 1 0 %}
+                            {% for item in order.items.all %}
+                                {% if forloop.first %}{{ item.price|floatformat:2 }}{% endif %}
+                            {% endfor %}
+                            BYN
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="success-actions">
+                <a href="{% url 'home' %}" class="btn-primary">Продолжить покупки</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

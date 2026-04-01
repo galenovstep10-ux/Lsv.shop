@@ -1,0 +1,215 @@
+.cart-wrapper {
+    display: flex;
+    justify-content: center;
+    min-height: calc(100vh - 100px); /* Минимальная высота на всю страницу минус отступ */
+    margin-top: 100px; /* Отступ сверху 100px */
+    padding: 0 20px;
+}
+
+.cart-content {
+    width: 100%;
+    max-width: 1200px; /* Максимальная ширина контента */
+}
+
+/* Остальные стили */
+h1 {
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #4CAF50;
+    display: inline-block;
+}
+
+.table {
+    width: 100%;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.table th {
+    padding: 15px 20px;
+    font-weight: 600;
+    text-align: left;
+    font-size: 16px;
+}
+
+.table td {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.table tfoot {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.table tfoot td {
+    padding: 20px;
+    font-size: 18px;
+}
+
+.table td:first-child {
+    font-weight: 500;
+    color: #333;
+}
+
+.table td:nth-child(2),
+.table td:nth-child(4) {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.table form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.table input[type="number"] {
+    width: 70px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+
+.table input[type="number"]:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn-lg {
+    padding: 12px 30px;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+.text-right {
+    text-align: right;
+    margin-top: 30px;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.empty-cart p {
+    font-size: 18px;
+    color: #999;
+    margin-bottom: 25px;
+}
+
+@media (max-width: 768px) {
+    .cart-wrapper {
+        margin-top: 50px; /* Уменьшаем отступ на мобильных */
+    }
+    
+    .table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .table th, 
+    .table td {
+        padding: 12px;
+        white-space: nowrap;
+    }
+    
+    .table form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .table input[type="number"] {
+        width: 100%;
+    }
+    
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+    }
+    
+    .text-right {
+        text-align: center;
+    }
+    
+    .btn-lg {
+        width: 100%;
+    }
+}

@@ -1,0 +1,484 @@
+{% extends "base.html" %} 
+
+{% load static %}
+{% block title %}{{product.title}}{% endblock title %}
+{% block styles %}<link rel="stylesheet" href={% static "css/product.css" %}>{% endblock styles %}
+{% block container %}
+
+<main class="product-detail-page">
+  <div class="product-detail-container">
+    <!-- Левая колонка: ГАЛЕРЕЯ с горизонтальной прокруткой -->
+    <div class="product-gallery">
+      <div class="gallery-container" id="galleryContainer">
+        <div class="gallery-wrapper" id="galleryWrapper">
+          {% for i in photos %}
+          <div class="gallery-slide">
+            <img src="{{ i.photo.url }}" alt="{{ i.title }}">
+            {% if forloop.first %}
+            <div class="discount-badge">-25%</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        
+        <!-- Индикаторы (точки) -->
+        {% if photos|length > 1 %}
+        <div class="gallery-dots" id="galleryDots">
+          {% for i in photos %}
+          <button class="gallery-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></button>
+          {% endfor %}
+        </div>
+        
+        <!-- Счетчик фотографий -->
+        <div class="gallery-counter" id="galleryCounter">
+          <span id="currentSlide">1</span> / <span id="totalSlides">{{ photos|length }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Правая колонка: ИНФОРМАЦИЯ -->
+    <div class="product-detail-info">
+      <h1 class="product-detail-title">{{ product.title }}</h1>
+      <div class="product-detail-brand">Бренд: {{ product.brand|default:"Off-White" }} · Артикул: {{ product.article|default:"OW-2024-001" }}</div>
+
+      <!-- Цена -->
+      <div class="product-detail-price">
+        <span class="current-price">{{ product.price|default:"120" }} BYN</span>
+        {% if product.old_price %}
+        <span class="old-price">{{ product.old_price }} BYN</span>
+        {% endif %}
+      </div>
+
+      <!-- Выбор размера (динамический из модели) -->
+      <div class="product-option-section">
+        <div class="option-title">Выберите размер (EUR):</div>
+        <div class="size-selector" id="sizeSelector">
+          {% for size in sizes %}
+          <button class="size-btn {% if forloop.counter == 4 %}selected{% endif %}" data-size="{{ size }}">
+            {{ size }}
+          </button>
+          {% endfor %}
+        </div>
+        <p style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">
+          *европейские размеры. Таблица соответствия ниже.
+        </p>
+      </div>
+
+      <!-- Выбор цвета (оставляем как есть) -->
+      <div class="product-option-section">
+        <div class="option-title">Цвет:</div>
+        <div class="color-selector">
+          <button class="color-btn white selected" onclick="selectColor(this, 'white')" title="Белый"></button>
+          <button class="color-btn black" onclick="selectColor(this, 'black')" title="Черный"></button>
+          <button class="color-btn red" onclick="selectColor(this, 'red')" title="Красный"></button>
+          <button class="color-btn blue" onclick="selectColor(this, 'blue')" title="Синий"></button>
+        </div>
+      </div>
+
+      <!-- Количество -->
+      <div class="product-option-section">
+        <div class="option-title">Количество:</div>
+        <div class="quantity-selector">
+          <button class="quantity-btn" type="button" onclick="changeQuantity(-1)">-</button>
+          <input type="text" class="quantity-input" value="1" readonly id="quantity">
+          <button class="quantity-btn" type="button" onclick="changeQuantity(1)">+</button>
+        </div>
+      </div>
+
+      <!-- Кнопки - теперь форма для отправки размера -->
+      <div class="product-action-buttons">
+        <form action="{% url 'add_to_cart' product.id %}" method="post" id="addToCartForm" style="width: 100%;">
+          {% csrf_token %}
+          <input type="hidden" name="size" id="selectedSize" value="39">
+          <input type="hidden" name="quantity" id="selectedQuantity" value="1">
+          <button type="submit" class="add-to-cart-btn">В КОРЗИНУ</button>
+        </form>
+        <button class="wishlist-btn" onclick="addToWishlist()">♥ В ИЗБРАННОЕ</button>
+      </div>
+
+      <!-- Описание и характеристики -->
+      <div class="product-description-section">
+        <h3>Описание</h3>
+        <p>
+          {{ description|default:"Описания нет:(" }}
+        </p>
+
+        <h3>Характеристики</h3>
+        <table class="specs-table">
+          <tr>
+            <td>Бренд:</td>
+            <td>{{ product.brand|default:"Off-White" }}</td>
+          </tr>
+          <tr>
+            <td>Страна производства:</td>
+            <td>{{ product.country|default:"Италия" }}</td>
+          </tr>
+          <tr>
+            <td>Материал верха:</td>
+            <td>{{ product.material|default:"Натуральная кожа/текстиль" }}</td>
+          </tr>
+          <tr>
+            <td>Материал подошвы:</td>
+            <td>{{ product.sole_material|default:"Резина" }}</td>
+          </tr>
+          <tr>
+            <td>Сезон:</td>
+            <td>{{ product.season|default:"Всесезонные" }}</td>
+          </tr>
+          <tr>
+            <td>Соответствие размеров EUR/RU:</td>
+            <td>
+              {% for size in sizes %}
+                {{ size }}→{{ size|add:"-1" }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- МОДАЛЬНОЕ ОКНО (без изменений) -->
+<div id="modal-register" class="modal">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <h2 id="modal-title">Регистрация</h2>
+    <form id="form-register">
+      <input type="text" placeholder="Имя пользователя" required>
+      <input type="tel" placeholder="Номер телефона" required>
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Пароль" required>
+      <input type="text" placeholder="Страна проживания" required>
+      <input type="text" placeholder="Город" required>
+      <button type="submit">Зарегистрироваться</button>
+    </form>
+    <form id="form-login" style="display: none;">
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Пароль" required>
+      <button type="submit">Войти</button>
+    </form>
+    <p style="text-align: center; margin-top: 10px;">
+      <a href="#" id="toggle-form" style="color: var(--highlight); text-decoration: underline;">Уже зарегистрированы? Войти</a>
+    </p>
+  </div>
+</div>
+
+<!-- УВЕДОМЛЕНИЕ (тост) -->
+<div id="success-toast" class="toast">Товар добавлен в корзину</div>
+
+<script>
+// ---- ГАЛЕРЕЯ С ГОРИЗОНТАЛЬНОЙ ПРОКРУТКОЙ ----
+document.addEventListener('DOMContentLoaded', function() {
+  const wrapper = document.getElementById('galleryWrapper');
+  const container = document.getElementById('galleryContainer');
+  const dots = document.querySelectorAll('.gallery-dot');
+  const currentSlideSpan = document.getElementById('currentSlide');
+  const totalSlides = document.querySelectorAll('.gallery-slide').length;
+  
+  if (!wrapper || totalSlides === 0) return;
+  
+  let currentIndex = 0;
+  let startX = 0;
+  let isDragging = false;
+  let startScrollLeft = 0;
+  
+  // Обновление индикаторов
+  function updateIndicators() {
+    if (dots.length) {
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentIndex);
+      });
+    }
+    if (currentSlideSpan) {
+      currentSlideSpan.textContent = currentIndex + 1;
+    }
+  }
+  
+  // Переключение на определенный слайд
+  function goToSlide(index) {
+    if (index < 0) index = 0;
+    if (index >= totalSlides) index = totalSlides - 1;
+    
+    currentIndex = index;
+    const slideWidth = container.offsetWidth;
+    wrapper.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+    updateIndicators();
+  }
+  
+  // Обработчики для свайпов
+  wrapper.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.pageX;
+    startScrollLeft = currentIndex * container.offsetWidth;
+    wrapper.style.transition = 'none';
+    wrapper.style.cursor = 'grabbing';
+  });
+  
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const deltaX = e.pageX - startX;
+    const slideWidth = container.offsetWidth;
+    const newTransform = startScrollLeft - deltaX;
+    
+    wrapper.style.transform = `translateX(-${newTransform}px)`;
+  });
+  
+  window.addEventListener('mouseup', (e) => {
+    if (!isDragging) return;
+    
+    isDragging = false;
+    wrapper.style.transition = 'transform 0.3s ease-out';
+    wrapper.style.cursor = 'grab';
+    
+    const slideWidth = container.offsetWidth;
+    const deltaX = e.pageX - startX;
+    const threshold = slideWidth * 0.2;
+    
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX > 0 && currentIndex > 0) {
+        currentIndex--;
+      } else if (deltaX < 0 && currentIndex < totalSlides - 1) {
+        currentIndex++;
+      }
+    }
+    
+    goToSlide(currentIndex);
+  });
+  
+  // Клик по точкам
+  if (dots.length) {
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        goToSlide(index);
+      });
+    });
+  }
+  
+  // Touch события для мобильных устройств
+  wrapper.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    startX = e.touches[0].pageX;
+    startScrollLeft = currentIndex * container.offsetWidth;
+    wrapper.style.transition = 'none';
+  });
+  
+  wrapper.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const deltaX = e.touches[0].pageX - startX;
+    const slideWidth = container.offsetWidth;
+    const newTransform = startScrollLeft - deltaX;
+    
+    wrapper.style.transform = `translateX(-${newTransform}px)`;
+  });
+  
+  wrapper.addEventListener('touchend', (e) => {
+    if (!isDragging) return;
+    
+    isDragging = false;
+    wrapper.style.transition = 'transform 0.3s ease-out';
+    
+    const slideWidth = container.offsetWidth;
+    const deltaX = e.changedTouches[0].pageX - startX;
+    const threshold = slideWidth * 0.2;
+    
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX > 0 && currentIndex > 0) {
+        currentIndex--;
+      } else if (deltaX < 0 && currentIndex < totalSlides - 1) {
+        currentIndex++;
+      }
+    }
+    
+    goToSlide(currentIndex);
+  });
+  
+  // Обновление при ресайзе окна
+  window.addEventListener('resize', () => {
+    goToSlide(currentIndex);
+  });
+  
+  // Инициализация
+  goToSlide(0);
+});
+
+// ---- ВЫБОР РАЗМЕРА (ОБНОВЛЕН) ----
+document.querySelectorAll('.size-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    // Убираем selected у всех кнопок размера
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+    // Добавляем selected текущей кнопке
+    this.classList.add('selected');
+    
+    // Обновляем скрытое поле с выбранным размером
+    const selectedSize = document.getElementById('selectedSize');
+    if (selectedSize) {
+      selectedSize.value = this.getAttribute('data-size') || this.textContent;
+    }
+  });
+});
+
+// ---- ВЫБОР ЦВЕТА ----
+function selectColor(element, color) {
+  document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('selected'));
+  element.classList.add('selected');
+  console.log('Выбран цвет:', color);
+}
+
+// ---- КОЛИЧЕСТВО (ОБНОВЛЕН) ----
+function changeQuantity(delta) {
+  const input = document.getElementById('quantity');
+  let value = parseInt(input.value) + delta;
+  if (value < 1) value = 1;
+  if (value > 99) value = 99;
+  input.value = value;
+  
+  // Обновляем скрытое поле с количеством
+  const selectedQuantity = document.getElementById('selectedQuantity');
+  if (selectedQuantity) {
+    selectedQuantity.value = value;
+  }
+}
+
+// ---- ДОБАВЛЕНИЕ В КОРЗИНУ С AJAX ----
+document.getElementById('addToCartForm')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const submitBtn = this.querySelector('.add-to-cart-btn');
+  const originalText = submitBtn.textContent;
+  
+  // Блокируем кнопку и показываем загрузку
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'ДОБАВЛЯЕМ...';
+  
+  fetch(this.action, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Показываем уведомление
+      const toast = document.getElementById('success-toast');
+      toast.textContent = data.message || 'Товар добавлен в корзину';
+      toast.classList.add('show');
+      
+      // Обновляем счетчик корзины, если есть
+      const cartCount = document.querySelector('.cart-count');
+      if (cartCount && data.cart_count) {
+        cartCount.textContent = data.cart_count;
+      }
+      
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    } else {
+      alert(data.error || 'Произошла ошибка');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Произошла ошибка при добавлении товара');
+  })
+  .finally(() => {
+    // Разблокируем кнопку
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  });
+});
+
+// ---- ДОБАВЛЕНИЕ В ИЗБРАННОЕ ----
+function addToWishlist() {
+  const toast = document.getElementById('success-toast');
+  toast.innerText = 'Товар добавлен в избранное';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ---- ТВОЙ СКРИПТ АВТОРИЗАЦИИ (ПОЛНОСТЬЮ СОХРАНЁН) ----
+(function() {
+  var modal = document.getElementById("modal-register");
+  var profileBtn = document.getElementById("profile-btn");
+  var closeBtn = document.querySelector(".close-btn");
+  var toast = document.getElementById("success-toast");
+  var formRegister = document.getElementById("form-register");
+  var formLogin = document.getElementById("form-login");
+  var toggleForm = document.getElementById("toggle-form");
+  var modalTitle = document.getElementById("modal-title");
+  var isLoginMode = false;
+
+  if (localStorage.getItem("isLoggedIn") === "true") {
+    isLoginMode = true;
+  }
+
+  function showForm(login) {
+    if (login) {
+      formRegister.style.display = "none";
+      formLogin.style.display = "block";
+      modalTitle.innerText = "Вход";
+      toggleForm.innerText = "Нет аккаунта? Зарегистрироваться";
+    } else {
+      formRegister.style.display = "block";
+      formLogin.style.display = "none";
+      modalTitle.innerText = "Регистрация";
+      toggleForm.innerText = "Уже зарегистрированы? Войти";
+    }
+  }
+
+  if (profileBtn) {
+    profileBtn.onclick = function(e) {
+      e.preventDefault();
+      modal.style.display = "flex";
+      showForm(isLoginMode);
+    };
+  }
+
+  closeBtn.onclick = function() {
+    modal.style.display = "none";
+  };
+
+  window.onclick = function(e) {
+    if (e.target == modal) {
+      modal.style.display = "none";
+    }
+  };
+
+  toggleForm.onclick = function(e) {
+    e.preventDefault();
+    isLoginMode = !isLoginMode;
+    showForm(isLoginMode);
+  };
+
+  formRegister.onsubmit = function(e) {
+    e.preventDefault();
+    modal.style.display = "none";
+    toast.innerText = "Вы успешно зарегистрировались";
+    toast.classList.add("show");
+    setTimeout(function() {
+      toast.classList.remove("show");
+    }, 3000);
+    isLoginMode = true;
+    localStorage.setItem("isLoggedIn", "true");
+  };
+
+  formLogin.onsubmit = function(e) {
+    e.preventDefault();
+    modal.style.display = "none";
+    toast.innerText = "Вы вошли в систему";
+    toast.classList.add("show");
+    setTimeout(function() {
+      toast.classList.remove("show");
+    }, 3000);
+    localStorage.setItem("isLoggedIn", "true");
+  };
+})();
+</script>
+
+{% endblock container %}

@@ -1,0 +1,39 @@
+<!-- templates/shop/register.html -->
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block styles %}<link rel="stylesheet" href={% static "css/login.css" %}>{% endblock styles %}
+
+
+
+{% block container %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Регистрация</h2>
+        
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <div class="helptext">{{ field.help_text }}</div>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="errorlist">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            
+            <button type="submit" class="auth-btn">Зарегистрироваться</button>
+        </form>
+        
+        <div class="auth-links">
+            <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

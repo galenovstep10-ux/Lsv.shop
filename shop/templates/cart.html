@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Корзина{% endblock %}
+
+{% block styles %}
+<style>
+    .cart-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .cart-container h1 {
+        font-size: 32px;
+        margin-bottom: 30px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .cart-items {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .cart-item {
+        display: flex;
+        gap: 20px;
+        padding: 25px;
+        border-bottom: 1px solid #eee;
+        transition: all 0.3s ease;
+    }
+    
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+    
+    .cart-item:hover {
+        background: #fafafa;
+    }
+    
+    .cart-item img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .item-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .item-details h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+    
+    .item-details p {
+        margin: 0;
+        font-size: 14px;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .item-details strong {
+        color: var(--text-primary);
+        font-weight: 600;
+        min-width: 80px;
+    }
+    
+    .size-select {
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .size-select:hover {
+        border-color: var(--highlight);
+    }
+    
+    .size-select:focus {
+        outline: none;
+        border-color: var(--highlight);
+        box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+    }
+    
+    .quantity-form {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .quantity-form input {
+        width: 70px;
+        padding: 6px 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 14px;
+    }
+    
+    .quantity-form input:focus {
+        outline: none;
+        border-color: var(--highlight);
+    }
+    
+    .quantity-form button {
+        padding: 6px 12px;
+        background: #f0f0f0;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s ease;
+    }
+    
+    .quantity-form button:hover {
+        background: #e0e0e0;
+    }
+    
+    .remove-btn {
+        color: #ff4444;
+        text-decoration: none;
+        font-size: 14px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        align-self: flex-start;
+    }
+    
+    .remove-btn:hover {
+        background: #ff4444;
+        color: white;
+    }
+    
+    .cart-summary {
+        background: white;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .cart-summary h3 {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+    
+    .checkout-btn {
+        background: #000;
+        color: white;
+        padding: 14px 32px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+    
+    .checkout-btn:hover {
+        background: #333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .continue-shopping {
+        display: inline-block;
+        margin-top: 20px;
+        color: var(--highlight);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .continue-shopping:hover {
+        text-decoration: underline;
+    }
+    
+    .empty-cart {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .empty-cart p {
+        font-size: 18px;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .cart-item {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .cart-item img {
+            width: 150px;
+            height: 150px;
+        }
+        
+        .item-details p {
+            justify-content: center;
+        }
+        
+        .cart-summary {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .remove-btn {
+            align-self: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block container %}
+<div class="cart-container">
+    <h1>Корзина</h1>
+    
+    {% if cart.items.all %}
+        <div class="cart-items">
+            {% for item in cart.items.all %}
+                <div class="cart-item">
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}">
+                    <div class="item-details">
+                        <h3>{{ item.product.title }}</h3>
+                        <p>
+                            <strong>Размер:</strong> 
+                            <select class="size-select" data-item-id="{{ item.id }}">
+                                <option value="">Выберите размер</option>
+                                {% for size in item.product.sizes %}
+                                    <option value="{{ size }}" {% if item.size == size|stringformat:"i" %}selected{% endif %}>
+                                        {{ size }} (EUR)
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p>
+                            <strong>Количество:</strong>
+                            <form action="{% url 'update_cart' item.id %}" method="post" class="quantity-form">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99">
+                                <button type="submit">Обновить</button>
+                            </form>
+                        </p>
+                        <p><strong>Цена:</strong> {{ item.product.price }} BYN</p>
+                        <p><strong>Сумма:</strong> <span style="color: var(--highlight); font-weight: 600;">{{ item.get_total }} BYN</span></p>
+                    </div>
+                    <a href="{% url 'remove_from_cart' item.id %}" class="remove-btn" onclick="return confirm('Удалить товар?')">Удалить</a>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="cart-summary">
+            <h3>Итого: {{ cart.get_total_price }} BYN</h3>
+            <a href="{% url 'create_order' %}" class="checkout-btn">Оформить заказ</a>
+        </div>
+    {% else %}
+        <div class="empty-cart">
+            <p>🛒 Ваша корзина пуста</p>
+            <a href="{% url 'home_page' %}" class="checkout-btn" style="background: var(--highlight);">Продолжить покупки</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Функция для получения CSRF токена
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Обработка изменения размера
+document.querySelectorAll('.size-select').forEach(select => {
+    select.addEventListener('change', function() {
+        const itemId = this.dataset.itemId;
+        const newSize = this.value;
+        const oldSize = this.querySelector('option:checked').textContent;
+        
+        if (newSize) {
+            // Сохраняем текущее состояние
+            const originalText = this.options[this.selectedIndex].text;
+            this.style.opacity = '0.7';
+            
+            fetch(`/cart/update-size/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `size=${newSize}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Показываем уведомление об успешном изменении
+                    showNotification(data.message || 'Размер успешно изменен');
+                    // Обновляем страницу через секунду
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    // Возвращаем предыдущий размер
+                    this.value = '';
+                    showNotification(data.error || 'Ошибка при изменении размера', 'error');
+                    this.style.opacity = '1';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.value = '';
+                showNotification('Произошла ошибка при изменении размера', 'error');
+                this.style.opacity = '1';
+            });
+        }
+    });
+});
+
+// Функция для показа уведомлений
+function showNotification(message, type = 'success') {
+    // Проверяем, существует ли уже контейнер для уведомлений
+    let toast = document.getElementById('cart-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'cart-toast';
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        document.body.appendChild(toast);
+        
+        // Добавляем стили для анимации
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Устанавливаем цвет фона в зависимости от типа уведомления
+    toast.style.backgroundColor = type === 'success' ? '#4caf50' : '#ff4444';
+    toast.textContent = message;
+    toast.style.display = 'block';
+    toast.style.animation = 'slideIn 0.3s ease';
+    
+    // Скрываем уведомление через 3 секунды
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 300);
+    }, 3000);
+}
+
+// Анимация при добавлении/удалении товаров
+document.querySelectorAll('.remove-btn, .quantity-form button').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        const cartItem = this.closest('.cart-item');
+        if (cartItem && this.classList.contains('remove-btn')) {
+            e.preventDefault();
+            if (confirm('Удалить товар из корзины?')) {
+                cartItem.style.opacity = '0.5';
+                cartItem.style.transition = 'opacity 0.3s ease';
+                window.location.href = this.href;
+            }
+        }
+    });
+});
+
+// Обновление общей суммы при изменении количества
+document.querySelectorAll('.quantity-form input').forEach(input => {
+    input.addEventListener('change', function() {
+        const form = this.closest('form');
+        const submitBtn = form.querySelector('button');
+        if (submitBtn) {
+            submitBtn.click();
+        }
+    });
+});
+</script>
+{% endblock %}
